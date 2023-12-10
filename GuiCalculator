@@ -1,0 +1,165 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+public class Calculator extends JFrame implements ActionListener {
+    private JTextField inputField;
+    private double num1, num2, result;
+    private char operator;
+    private boolean decimalClicked;
+    private double memoryValue;
+    public Calculator() {
+
+        setTitle("Enhanced Calculator");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setResizable(false);
+        setLocationRelativeTo(null);
+        JPanel panel = new JPanel(new BorderLayout());
+
+
+
+
+        inputField = new JTextField();
+        inputField.setEditable(false);
+        inputField.setHorizontalAlignment(JTextField.RIGHT);
+        inputField.setFont(new Font("Calibri", Font.PLAIN, 20));
+        panel.add(inputField, BorderLayout.NORTH);
+
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 4, 5, 5));
+        String[] buttons = {
+                "7", "8", "9", "/",
+                "4", "5", "6", "*",
+                "1", "2", "3", "-",
+                "C", "0", "=", "+",
+                ".", "←", "MC", "MR"
+        };
+
+        for (String button : buttons) {
+            JButton btn = new JButton(button);
+            btn.addActionListener(this);
+            btn.setFont(new Font("Calibri", Font.PLAIN, 18));
+            buttonPanel.add(btn);
+        }
+
+        panel.add(buttonPanel, BorderLayout.CENTER);
+
+
+
+
+        add(panel);
+        pack();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String buttonText = ((JButton) e.getSource()).getText();
+
+        switch (buttonText) {
+            case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
+                handleDigit(buttonText);
+                break;
+            case "+", "-", "*", "/":
+                handleOperator(buttonText.charAt(0));
+                break;
+            case "=":
+                calculateResult();
+                break;
+            case "C":
+                clear();
+                break;
+            case ".":
+                handleDecimal();
+                break;
+            case "←":
+                handleBackspace();
+                break;
+            case "MC":
+                clearMemory();
+                break;
+            case "MR":
+                recallMemory();
+                break;
+        }
+    }
+
+
+
+    private void handleDigit(String digit) {
+        inputField.setText(inputField.getText() + digit);
+    }
+
+    private void handleOperator(char operator) {
+        if (!inputField.getText().isEmpty()) {
+            num1 = Double.parseDouble(inputField.getText());
+            this.operator = operator;
+            inputField.setText("");
+            decimalClicked = false;
+        }
+    }
+
+    private void calculateResult() {
+        if (!inputField.getText().isEmpty()) {
+            num2 = Double.parseDouble(inputField.getText());
+            switch (operator) {
+                case '+':
+                    result = num1 + num2;
+                    break;
+                case '-':
+                    result = num1 - num2;
+                    break;
+                case '*':
+                    result = num1 * num2;
+                    break;
+                case '/':
+                    if (num2 != 0) {
+                        result = num1 / num2;
+                    } else {
+                        inputField.setText("Cannot divide by zero");
+                        return;
+                    }
+                    break;
+            }
+            inputField.setText(String.valueOf(result));
+            decimalClicked = false;
+        }
+    }
+
+    private void clear() {
+        inputField.setText("");
+        decimalClicked = false;
+    }
+
+    private void handleDecimal() {
+        if (!decimalClicked && !inputField.getText().contains(".")) {
+            inputField.setText(inputField.getText() + ".");
+            decimalClicked = true;
+        }
+    }
+
+    private void handleBackspace() {
+        String currentText = inputField.getText();
+        if (!currentText.isEmpty()) {
+            inputField.setText(currentText.substring(0, currentText.length() - 1));
+            if (currentText.charAt(currentText.length() - 1) == '.') {
+                decimalClicked = false;
+            }
+        }
+    }
+
+
+
+    private void clearMemory() {
+        memoryValue = 0;
+    }
+
+    private void recallMemory() {
+        inputField.setText(String.valueOf(memoryValue));
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            Calculator calculator = new Calculator();
+            calculator.setVisible(true);
+        });
+    }
+}
